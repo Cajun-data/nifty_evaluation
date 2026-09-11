@@ -2,13 +2,19 @@ import sys
 
 from GenerateRules import GenerateRules
 from EvaluateRules import EvaluateRules
+from RegeneratingRuleEvaluator import RegeneratingRuleEvaluator
 
 class FeatureSelector:
 
     def __init__(self):
         pass
 
-    def find_features(self, configs):
+    def find_features(self, configs, *, return_details=True):
+        # Preserve the historical detailed API; the CLI only needs selected features.
+        if not return_details:
+            return RegeneratingRuleEvaluator(configs['seed']).run(
+                configs, configs['filtered_feature_quant_table'], configs['feature_meta_table'])
+
         # Generate Rules
         print("GENERATING RULES", file=sys.stderr, flush=True)
         rule_generator = GenerateRules()

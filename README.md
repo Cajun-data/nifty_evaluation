@@ -39,6 +39,9 @@ NIFty requires Python (>= 3.11) and the following Python packages to be installe
 * statsmodels
 
 ## Codebase Structure
+Feature selection uses blockwise rule regeneration to reduce RAM while preserving
+results. See the [implementation and benchmark report](docs/regeneration.md).
+
 The codebase functions as follows:
 ![NIFty Flowchart](images/Pipeline_flow.png)
 

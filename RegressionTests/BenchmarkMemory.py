@@ -159,7 +159,9 @@ def run(baseline_ref, repeats):
                 'input_sha256': {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
                                  for p in sorted((ROOT / 'RegressionTests' / 'test_data').glob('*.tsv'))},
                 'optimized_source_sha256': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-                                           for name in ('DataTransformer.py', 'EvaluateRules.py', 'nifty.py')}}
+                                           for name in ('DataTransformer.py', 'EvaluateRules.py', 'nifty.py',
+                                                        'FeatureSelector.py', 'RegeneratingRuleEvaluator.py')
+                                           if (ROOT / name).exists()}}
     (OUT / 'manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
 
 
@@ -167,8 +169,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--baseline-ref', default='da3db09')
     parser.add_argument('--repeats', type=int, default=3)
+    parser.add_argument('--output-dir', default=str(OUT))
     parser.add_argument('--worker', nargs=3, metavar=('SOURCE', 'CONFIG', 'RESULT'))
     args = parser.parse_args()
+    OUT = Path(args.output_dir).resolve()
     if sys.platform != 'win32':
         parser.error('This benchmark uses Windows process memory counters.')
     if args.repeats < 1:

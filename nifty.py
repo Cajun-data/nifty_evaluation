@@ -73,11 +73,10 @@ def main():
                                                                                         meta_df=configs['feature_meta_table'])
 
         feature_finder = FeatureSelector()
-        configs['rules'], configs['true_scores'], configs['all_evaluated_rules'], configs['feature_table'] = feature_finder.find_features(configs=configs)
+        configs['feature_table'] = feature_finder.find_features(configs=configs, return_details=False)
 
         # Training only needs the selected features, not the full rule search.
-        for key in ('rules', 'true_scores', 'all_evaluated_rules',
-                    'feature_quant_table', 'filtered_feature_quant_table', 'feature_meta_table'):
+        for key in ('feature_quant_table', 'filtered_feature_quant_table', 'feature_meta_table'):
             del configs[key]
 
         find_feature_end = time.time()
