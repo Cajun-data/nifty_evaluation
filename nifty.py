@@ -46,6 +46,9 @@ def main():
         data_table_splitter = DataSplitter()
         data_table_splitter.run_data_splitter(configs=configs)
 
+        # The split tables are now the inputs for all remaining stages.
+        del configs['reference_quant_table'], configs['reference_meta_table']
+
         split_reference_end = time.time()
         split_reference_time = (split_reference_end - check_param_end) / 60
         print(f"{Colors.INFO}INFO: Reference split in {split_reference_time:.2f} minutes.", file=sys.stderr, flush=True)
@@ -71,6 +74,11 @@ def main():
 
         feature_finder = FeatureSelector()
         configs['rules'], configs['true_scores'], configs['all_evaluated_rules'], configs['feature_table'] = feature_finder.find_features(configs=configs)
+
+        # Training only needs the selected features, not the full rule search.
+        for key in ('rules', 'true_scores', 'all_evaluated_rules',
+                    'feature_quant_table', 'filtered_feature_quant_table', 'feature_meta_table'):
+            del configs[key]
 
         find_feature_end = time.time()
         find_feature_time = (find_feature_end - split_reference_end) / 60

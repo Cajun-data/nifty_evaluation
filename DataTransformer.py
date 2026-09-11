@@ -6,6 +6,9 @@ from Colors import Colors
 
 class DataTransformer:
 
+    # Bound pair-by-sample temporaries independently of the number of pairs.
+    _PAIR_BLOCK_ELEMENTS = 1_000_000
+
     def __init__(self):
         pass
 
@@ -18,13 +21,16 @@ class DataTransformer:
         
         col_to_idx = {col: i for i, col in enumerate(quant_df.columns)}
         
-        idx1 = [col_to_idx[p[0]] for p in pairs]
-        idx2 = [col_to_idx[p[1]] for p in pairs]
-        
-        prot1_matrix = quant_matrix[:, idx1].T 
-        prot2_matrix = quant_matrix[:, idx2].T 
-        
-        final_matrix = (prot1_matrix > prot2_matrix).astype(np.int8)
+        n_samples = quant_matrix.shape[0]
+        block_size = max(1, self._PAIR_BLOCK_ELEMENTS // max(1, n_samples))
+        final_matrix = np.empty((len(pairs), n_samples), dtype=np.int8)
+        for start in range(0, len(pairs), block_size):
+            block = pairs[start:start + block_size]
+            idx1 = [col_to_idx[p[0]] for p in block]
+            idx2 = [col_to_idx[p[1]] for p in block]
+            # Write 0/1 directly into the output; preserve strict > and NA semantics.
+            np.greater(quant_matrix[:, idx1].T, quant_matrix[:, idx2].T,
+                       out=final_matrix[start:start + block_size])
                 
         return final_matrix
 
